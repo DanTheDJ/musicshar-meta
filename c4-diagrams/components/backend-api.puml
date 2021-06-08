@@ -1,0 +1,46 @@
+@startuml MusicShar
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+
+!include DEVICONS/react.puml
+!include DEVICONS/nodejs.puml
+!include DEVICONS/redis.puml
+!include DEVICONS/postgresql.puml
+!include FONTAWESOME/users.puml
+
+
+LAYOUT_WITH_LEGEND()
+
+Container(spa, "Single-Page App", "JavaScript, React", "User interface available to end users", $sprite="react")
+
+Container_Boundary(api, "Back-end API Application") {
+
+    Component(socketServer, "Socket Server", "WebSockets/Socket.IO", "Handles websocket related functionality")
+
+    Component(authRoutes, "Auth Routes", "Express Routing", "Handles incoming HTTP requests related to authentication.")
+    Component(authService, "Auth Service", "Sequelize ORM", "Performs required actions in relation to authentication.")
+
+    Component(roomRoutes, "Room Routes", "Express Routing", "Handles incoming HTTP requests related to rooms.")
+    Component(roomService, "Room Service", "Sequelize ORM", "Performs required actions in relation to rooms.")
+
+}
+
+ContainerDb(db, "Database", "PostgreSQL", "Holds user credentials, room information and source information.", $sprite="postgresql")
+ContainerDb(cache, "Cache", "Redis", "Holds temporary information, session data.", $sprite="redis")
+
+Rel(spa, authRoutes, "Makes API calls to", "JSON/HTTPS")
+Rel(spa, roomRoutes, "Makes API calls to", "JSON/HTTPS")
+Rel(spa, socketServer, "Communicates via websocket", "Websocket/HTTPS")
+
+Rel(socketServer, authService, "Uses")
+Rel(authRoutes, authService, "Uses")
+Rel(roomRoutes, roomService, "Uses")
+
+Rel(authService, db, "Reads/Writes")
+Rel(roomService, db, "Reads/Writes")
+Rel(api, cache, "Reads/Writes")
+
+SHOW_LEGEND()
+@enduml

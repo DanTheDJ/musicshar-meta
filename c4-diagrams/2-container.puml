@@ -1,0 +1,31 @@
+@startuml MusicShar
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+
+!include DEVICONS/react.puml
+!include DEVICONS/nodejs.puml
+!include DEVICONS/redis.puml
+!include DEVICONS/postgresql.puml
+!include FONTAWESOME/users.puml
+
+LAYOUT_WITH_LEGEND()
+
+Person(user, "User", "Users interacting from their web browser", $sprite="users")
+
+System_Boundary(musicshar, "MusicShar System") {
+
+    Container(spa, "Single-Page App", "JavaScript, React", "User interface available to end users", $sprite="react")
+    Container(api, "Back-end API", "Node.JS, Express", "Handles all logic for the application.", $sprite="nodejs")
+    ContainerDb(db, "Database", "PostgreSQL", "Holds user credentials, room information and source information.", $sprite="postgresql")
+    ContainerDb(cache, "Cache", "Redis", "Holds temporary information ie session data.", $sprite="redis")
+
+}
+
+Rel(user, spa, "Uses", "https")
+Rel(spa, api, "Makes API calls to", "async, JSON - HTTPS / Websockets")
+Rel(api, db, "Reads/Writes")
+Rel(api, cache, "Reads/Writes")
+
+SHOW_LEGEND()
+@enduml
